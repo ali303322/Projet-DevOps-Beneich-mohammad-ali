@@ -2,17 +2,14 @@ pipeline {
     agent any
 
     stages {
-
         stage('Checkout') {
             steps {
-                echo 'Clonage du projet depuis GitHub'
                 git branch: 'dev', url: 'https://github.com/user/ton-projet.git'
             }
         }
 
-        stage('Build & Test') {
+        stage('Build') {
             steps {
-                echo 'Build avec Maven'
                 sh 'mvn clean install'
             }
         }
@@ -21,6 +18,21 @@ pipeline {
             steps {
                 archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
             }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'cp target/ton-app.jar /opt/apps/'
+            }
+        }
+    }
+
+    post {
+        success {
+            slackSend channel: '#general', message: "✅ Build réussi pour ${env.JOB_NAME} !"
+        }
+        failure {
+            slackSend channel: '#general', message: "❌ Échec du build pour ${env.JOB_NAME} !"
         }
     }
 }
