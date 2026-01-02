@@ -27,12 +27,20 @@ pipeline {
         }
     }
 
-    post {
-        success {
-            slackSend channel: '#general', message: "✅ Build réussi pour ${env.JOB_NAME} !"
-        }
-        failure {
-            slackSend channel: '#general', message: "❌ Échec du build pour ${env.JOB_NAME} !"
-        }
+post {
+    success {
+        slackSend(
+            channel: '#jenkins',
+            message: "✅ Build & tests réussis pour ${env.JOB_NAME} (#${env.BUILD_NUMBER})"
+        )
     }
+
+    failure {
+        slackSend(
+            channel: '#jenkins',
+            message: "❌ Échec du build ou des tests pour ${env.JOB_NAME} (#${env.BUILD_NUMBER})"
+        )
+    }
+}
+
 }
